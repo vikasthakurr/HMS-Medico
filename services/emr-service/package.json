@@ -1,0 +1,21 @@
+{
+  "name": "hms-emr-service",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "EMR (medical records) service for HMS",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "mongoose": "^8.1.1",
+    "morgan": "^1.10.0",
+    "hms-shared": "file:../../shared"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

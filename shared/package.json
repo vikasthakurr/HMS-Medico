@@ -1,0 +1,12 @@
+{
+  "name": "hms-shared",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Shared utilities for HMS Medico microservices",
+  "main": "index.js",
+  "dependencies": {
+    "amqplib": "^0.10.4",
+    "jsonwebtoken": "^9.0.2",
+    "winston": "^3.11.0"
+  }
+}

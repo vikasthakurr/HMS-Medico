@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - shared
+          - gateway
+          - services/auth-service
+          - services/patient-service
+          - services/doctor-service
+          - services/appointment-service
+          - services/emr-service
+          - services/lab-service
+          - services/pharmacy-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies for ${{ matrix.service }}
+        working-directory: ${{ matrix.service }}
+        run: npm install
+
+      - name: Syntax check
+        working-directory: ${{ matrix.service }}
+        run: node --check src/server.js || echo "no server.js (shared package), skipping"

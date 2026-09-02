@@ -1,0 +1,39 @@
+{
+  "name": "hms-medico",
+  "version": "1.0.0",
+  "description": "Hospital Management System - Microservices Backend",
+  "private": true,
+  "scripts": {
+    "install:shared": "cd shared && npm install",
+    "install:gateway": "cd gateway && npm install",
+    "install:auth": "cd services/auth-service && npm install",
+    "install:patient": "cd services/patient-service && npm install",
+    "install:doctor": "cd services/doctor-service && npm install",
+    "install:appointment": "cd services/appointment-service && npm install",
+    "install:emr": "cd services/emr-service && npm install",
+    "install:lab": "cd services/lab-service && npm install",
+    "install:pharmacy": "cd services/pharmacy-service && npm install",
+    "install:all": "npm run install:shared && npm run install:gateway && npm run install:auth && npm run install:patient && npm run install:doctor && npm run install:appointment && npm run install:emr && npm run install:lab && npm run install:pharmacy",
+    "start:gateway": "cd gateway && npm start",
+    "start:auth": "cd services/auth-service && npm start",
+    "start:patient": "cd services/patient-service && npm start",
+    "start:doctor": "cd services/doctor-service && npm start",
+    "start:appointment": "cd services/appointment-service && npm start",
+    "start:emr": "cd services/emr-service && npm start",
+    "start:lab": "cd services/lab-service && npm start",
+    "start:pharmacy": "cd services/pharmacy-service && npm start",
+    "dev:gateway": "cd gateway && npm run dev",
+    "dev:auth": "cd services/auth-service && npm run dev",
+    "dev:patient": "cd services/patient-service && npm run dev",
+    "dev:doctor": "cd services/doctor-service && npm run dev",
+    "dev:appointment": "cd services/appointment-service && npm run dev",
+    "dev:emr": "cd services/emr-service && npm run dev",
+    "dev:lab": "cd services/lab-service && npm run dev",
+    "dev:pharmacy": "cd services/pharmacy-service && npm run dev",
+    "dev": "concurrently \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:patient\" \"npm run dev:doctor\" \"npm run dev:appointment\" \"npm run dev:emr\" \"npm run dev:lab\" \"npm run dev:pharmacy\"",
+    "start": "concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:patient\" \"npm run start:doctor\" \"npm run start:appointment\" \"npm run start:emr\" \"npm run start:lab\" \"npm run start:pharmacy\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
