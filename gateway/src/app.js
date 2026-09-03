@@ -54,6 +54,12 @@ app.use('/api', (req, res, next) => {
   const isPublic = publicRoutes.some(route => req.originalUrl.startsWith(route));
   if (isPublic) return next();
 
+  // strip any x-user-* headers a client tries to send so they can't be spoofed.
+  // the gateway is the only thing allowed to set them.
+  delete req.headers['x-user-id'];
+  delete req.headers['x-user-role'];
+  delete req.headers['x-user-email'];
+
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ status: 'error', message: 'No token provided' });
@@ -62,7 +68,8 @@ app.use('/api', (req, res, next) => {
   try {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // pass user info to downstream services via headers
+    // forward decoded user info downstream (for logging/tracing).
+    // services still verify the JWT themselves - this is defense in depth.
     req.headers['x-user-id'] = decoded.id;
     req.headers['x-user-role'] = decoded.role;
     req.headers['x-user-email'] = decoded.email;

@@ -21,6 +21,8 @@ jobs:
           - services/emr-service
           - services/lab-service
           - services/pharmacy-service
+          - services/billing-service
+          - services/notification-service
     steps:
       - uses: actions/checkout@v4
 

@@ -35,9 +35,18 @@ Each domain (auth, patients, doctors, appointments, medical records, lab, pharma
    (per service, database-per-service pattern)
 ```
 
-- The **API Gateway** is the only public entry point. It verifies the JWT on protected routes and forwards the decoded user id/role/email to downstream services via headers (`x-user-id`, `x-user-role`, `x-user-email`).
+- The **API Gateway** is the only public entry point. It verifies the JWT on protected routes and forwards the decoded user id/role/email to downstream services via headers (`x-user-id`, `x-user-role`, `x-user-email`) for logging/tracing.
 - Each service owns its own MongoDB database — no service reads another service's database directly.
 - Services share common utilities (auth middleware, error handling, logger) through a local `shared` package.
+
+### Authentication design (defense in depth)
+
+Auth is enforced at **two layers**:
+
+1. The **gateway** verifies the JWT before proxying, and strips any client-supplied `x-user-*` headers so they can't be spoofed.
+2. Each **service** independently re-verifies the JWT with its own `verifyToken` middleware and derives `req.user` from the token — it does not trust upstream headers for authorization decisions.
+
+This means a service is still secure even if it's ever exposed directly (not just behind the gateway). The forwarded `x-user-*` headers are informational only. `JWT_SECRET` must be identical across the gateway and all services for verification to line up.
 
 ## Services
 
@@ -51,8 +60,10 @@ Each domain (auth, patients, doctors, appointments, medical records, lab, pharma
 | EMR | 3005 | `hms_emr` | Visit records, prescriptions, lab orders |
 | Lab | 3006 | `hms_lab` | Test catalog, sample tracking, results |
 | Pharmacy | 3007 | `hms_pharmacy` | Drug inventory, dispensing |
+| Billing | 3008 | `hms_billing` | Invoices, payments |
+| Notification | 3009 | `hms_notification` | Email/SMS notifications |
 
-> Billing, Notification, and Admin services are planned but not yet implemented.
+> The Admin/Analytics service is planned but not yet implemented.
 
 ### Roles
 
@@ -212,6 +223,28 @@ All requests go through the gateway at `http://localhost:3000`. Protected routes
 | POST | `/dispense` | admin, pharmacist | Dispense drugs |
 | GET | `/dispense` | Any logged-in | List dispenses |
 
+### Billing (`/api/billing`)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/` | admin, receptionist | Create invoice |
+| GET | `/` | Any logged-in | List / filter by patient or status |
+| GET | `/:id` | Any logged-in | Get one |
+| POST | `/:id/payments` | admin, receptionist | Record a payment |
+| PUT | `/:id/cancel` | admin, receptionist | Cancel invoice |
+
+### Notifications (`/api/notifications`)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/` | admin, doctor, receptionist, lab_technician | Send a notification (email/SMS) |
+| GET | `/` | Any logged-in | List / filter by recipient, type, status |
+| GET | `/:id` | Any logged-in | Get one |
+| PUT | `/:id/read` | Any logged-in | Mark as read |
+| PUT | `/:id/retry` | admin, receptionist | Retry a failed notification |
+
+> The notification service simulates sending by logging to the console. Swap in a real email/SMS provider (nodemailer, SendGrid, Twilio) in `src/utils/sender.js`.
+
 ### Example: register and log in
 
 ```bash
@@ -249,7 +282,9 @@ HMS-Medico/
 │   ├── appointment-service/
 │   ├── emr-service/
 │   ├── lab-service/
-│   └── pharmacy-service/
+│   ├── pharmacy-service/
+│   ├── billing-service/
+│   └── notification-service/
 ├── package.json             # root scripts (run all services)
 └── README.md
 ```

@@ -13,7 +13,9 @@
     "install:emr": "cd services/emr-service && npm install",
     "install:lab": "cd services/lab-service && npm install",
     "install:pharmacy": "cd services/pharmacy-service && npm install",
-    "install:all": "npm run install:shared && npm run install:gateway && npm run install:auth && npm run install:patient && npm run install:doctor && npm run install:appointment && npm run install:emr && npm run install:lab && npm run install:pharmacy",
+    "install:billing": "cd services/billing-service && npm install",
+    "install:notification": "cd services/notification-service && npm install",
+    "install:all": "npm run install:shared && npm run install:gateway && npm run install:auth && npm run install:patient && npm run install:doctor && npm run install:appointment && npm run install:emr && npm run install:lab && npm run install:pharmacy && npm run install:billing && npm run install:notification",
     "start:gateway": "cd gateway && npm start",
     "start:auth": "cd services/auth-service && npm start",
     "start:patient": "cd services/patient-service && npm start",
@@ -22,6 +24,8 @@
     "start:emr": "cd services/emr-service && npm start",
     "start:lab": "cd services/lab-service && npm start",
     "start:pharmacy": "cd services/pharmacy-service && npm start",
+    "start:billing": "cd services/billing-service && npm start",
+    "start:notification": "cd services/notification-service && npm start",
     "dev:gateway": "cd gateway && npm run dev",
     "dev:auth": "cd services/auth-service && npm run dev",
     "dev:patient": "cd services/patient-service && npm run dev",
@@ -30,8 +34,10 @@
     "dev:emr": "cd services/emr-service && npm run dev",
     "dev:lab": "cd services/lab-service && npm run dev",
     "dev:pharmacy": "cd services/pharmacy-service && npm run dev",
-    "dev": "concurrently \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:patient\" \"npm run dev:doctor\" \"npm run dev:appointment\" \"npm run dev:emr\" \"npm run dev:lab\" \"npm run dev:pharmacy\"",
-    "start": "concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:patient\" \"npm run start:doctor\" \"npm run start:appointment\" \"npm run start:emr\" \"npm run start:lab\" \"npm run start:pharmacy\""
+    "dev:billing": "cd services/billing-service && npm run dev",
+    "dev:notification": "cd services/notification-service && npm run dev",
+    "dev": "concurrently \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:patient\" \"npm run dev:doctor\" \"npm run dev:appointment\" \"npm run dev:emr\" \"npm run dev:lab\" \"npm run dev:pharmacy\" \"npm run dev:billing\" \"npm run dev:notification\"",
+    "start": "concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:patient\" \"npm run start:doctor\" \"npm run start:appointment\" \"npm run start:emr\" \"npm run start:lab\" \"npm run start:pharmacy\" \"npm run start:billing\" \"npm run start:notification\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

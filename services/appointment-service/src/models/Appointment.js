@@ -33,4 +33,11 @@ appointmentSchema.methods.toJSON = function() {
   return obj;
 };
 
+// prevent double-booking at the database level.
+// only enforced for scheduled appointments so a cancelled slot can be rebooked.
+appointmentSchema.index(
+  { doctorId: 1, date: 1, startTime: 1 },
+  { unique: true, partialFilterExpression: { status: 'scheduled' } }
+);
+
 export default mongoose.model('Appointment', appointmentSchema);

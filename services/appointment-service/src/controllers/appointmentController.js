@@ -6,6 +6,9 @@ const isOverlapping = (start1, end1, start2, end2) => {
   return start1 < end2 && start2 < end1;
 };
 
+// mongo throws code 11000 when the unique index is violated (concurrent double-booking)
+const isDuplicateKeyError = (err) => err && err.code === 11000;
+
 // book a new appointment
 export const bookAppointment = asyncHandler(async (req, res, next) => {
   const { patientId, patientName, doctorId, doctorName, date, startTime, endTime, reason } = req.body;
@@ -35,17 +38,27 @@ export const bookAppointment = asyncHandler(async (req, res, next) => {
     return next(new AppError('Doctor already has an appointment in this slot', 409));
   }
 
-  const appointment = await Appointment.create({
-    patientId,
-    patientName,
-    doctorId,
-    doctorName,
-    date,
-    startTime,
-    endTime,
-    reason,
-    bookedBy: req.user.id
-  });
+  // the app-level check above handles the common case, but two requests can race
+  // past it. the unique index is the real guard - catch its error and return 409.
+  let appointment;
+  try {
+    appointment = await Appointment.create({
+      patientId,
+      patientName,
+      doctorId,
+      doctorName,
+      date,
+      startTime,
+      endTime,
+      reason,
+      bookedBy: req.user.id
+    });
+  } catch (err) {
+    if (isDuplicateKeyError(err)) {
+      return next(new AppError('Doctor already has an appointment in this slot', 409));
+    }
+    throw err;
+  }
 
   res.status(201).json({
     status: 'success',
@@ -134,7 +147,16 @@ export const rescheduleAppointment = asyncHandler(async (req, res, next) => {
   appointment.date = date;
   appointment.startTime = startTime;
   appointment.endTime = endTime;
-  await appointment.save();
+
+  // guard the new slot at the db level too (race-safe)
+  try {
+    await appointment.save();
+  } catch (err) {
+    if (isDuplicateKeyError(err)) {
+      return next(new AppError('Doctor already has an appointment in this slot', 409));
+    }
+    throw err;
+  }
 
   res.json({
     status: 'success',
