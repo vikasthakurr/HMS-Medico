@@ -31,8 +31,14 @@ Thanks for your interest in contributing! This guide covers how to get set up an
    git checkout -b feature/short-description
    ```
 2. Make your changes. Test the affected service's endpoints (the README has curl examples).
-3. Keep commits focused and write clear commit messages.
+3. Keep commits focused and write clear commit messages. Prefix with the area of change (e.g. `docs:`, `auth:`, `billing:`) so history is easy to scan.
 4. Push your branch and open a Pull Request against `main`.
+
+When you pair on a change, credit the other person with a co-author trailer in the commit body:
+
+```
+Co-authored-by: Name <email@example.com>
+```
 
 ## Pull Request Checklist
 
