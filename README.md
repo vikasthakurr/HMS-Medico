@@ -106,6 +106,14 @@ Every service has a `.env.example` file. Copy it to `.env` in each service folde
 cp services/auth-service/.env.example services/auth-service/.env
 ```
 
+To copy every service's example at once (from the repo root):
+
+```bash
+for d in gateway services/*/; do
+  [ -f "$d/.env.example" ] && cp -n "$d/.env.example" "$d/.env"
+done
+```
+
 Common variables:
 
 | Variable      | Description                                           |
