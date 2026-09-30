@@ -14,6 +14,7 @@ Each domain (auth, patients, doctors, appointments, medical records, lab, pharma
 - [Running the Project](#running-the-project)
 - [API Reference](#api-reference)
 - [Project Structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -50,18 +51,18 @@ This means a service is still secure even if it's ever exposed directly (not jus
 
 ## Services
 
-| Service | Port | Database | Responsibility |
-|---------|------|----------|----------------|
-| API Gateway | 3000 | — | Routing, auth verification, rate limiting |
-| Auth | 3001 | `hms_auth` | Registration, login, JWT, roles |
-| Patient | 3002 | `hms_patient` | Patient records, search |
-| Doctor | 3003 | `hms_doctor` | Staff profiles, availability |
-| Appointment | 3004 | `hms_appointment` | Booking, reschedule, cancel |
-| EMR | 3005 | `hms_emr` | Visit records, prescriptions, lab orders |
-| Lab | 3006 | `hms_lab` | Test catalog, sample tracking, results |
-| Pharmacy | 3007 | `hms_pharmacy` | Drug inventory, dispensing |
-| Billing | 3008 | `hms_billing` | Invoices, payments |
-| Notification | 3009 | `hms_notification` | Email/SMS notifications |
+| Service      | Port | Database           | Responsibility                            |
+| ------------ | ---- | ------------------ | ----------------------------------------- |
+| API Gateway  | 3000 | —                  | Routing, auth verification, rate limiting |
+| Auth         | 3001 | `hms_auth`         | Registration, login, JWT, roles           |
+| Patient      | 3002 | `hms_patient`      | Patient records, search                   |
+| Doctor       | 3003 | `hms_doctor`       | Staff profiles, availability              |
+| Appointment  | 3004 | `hms_appointment`  | Booking, reschedule, cancel               |
+| EMR          | 3005 | `hms_emr`          | Visit records, prescriptions, lab orders  |
+| Lab          | 3006 | `hms_lab`          | Test catalog, sample tracking, results    |
+| Pharmacy     | 3007 | `hms_pharmacy`     | Drug inventory, dispensing                |
+| Billing      | 3008 | `hms_billing`      | Invoices, payments                        |
+| Notification | 3009 | `hms_notification` | Email/SMS notifications                   |
 
 > The Admin/Analytics service is planned but not yet implemented.
 
@@ -107,12 +108,12 @@ cp services/auth-service/.env.example services/auth-service/.env
 
 Common variables:
 
-| Variable | Description |
-|----------|-------------|
-| `PORT` | Port the service runs on |
-| `NODE_ENV` | `development` or `production` |
+| Variable      | Description                                           |
+| ------------- | ----------------------------------------------------- |
+| `PORT`        | Port the service runs on                              |
+| `NODE_ENV`    | `development` or `production`                         |
 | `MONGODB_URI` | MongoDB connection string for that service's database |
-| `JWT_SECRET` | Secret for signing/verifying JWTs |
+| `JWT_SECRET`  | Secret for signing/verifying JWTs                     |
 
 > **Important:** `JWT_SECRET` must be **identical** across the gateway and all services, otherwise tokens issued by the auth service won't verify at the gateway. Never commit real secrets — `.env` files are gitignored.
 
@@ -141,107 +142,107 @@ All requests go through the gateway at `http://localhost:3000`. Protected routes
 
 ### Auth (`/api/auth`)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/register` | Public | Register a user |
-| POST | `/login` | Public | Login, returns tokens |
-| POST | `/refresh-token` | Public | Get a new access token |
-| POST | `/forgot-password` | Public | Request password reset |
-| POST | `/reset-password` | Public | Reset password with token |
-| GET | `/profile` | Yes | Current user profile |
-| POST | `/logout` | Yes | Invalidate refresh token |
-| POST | `/change-password` | Yes | Change password |
+| Method | Endpoint           | Auth   | Description               |
+| ------ | ------------------ | ------ | ------------------------- |
+| POST   | `/register`        | Public | Register a user           |
+| POST   | `/login`           | Public | Login, returns tokens     |
+| POST   | `/refresh-token`   | Public | Get a new access token    |
+| POST   | `/forgot-password` | Public | Request password reset    |
+| POST   | `/reset-password`  | Public | Reset password with token |
+| GET    | `/profile`         | Yes    | Current user profile      |
+| POST   | `/logout`          | Yes    | Invalidate refresh token  |
+| POST   | `/change-password` | Yes    | Change password           |
 
 ### Patients (`/api/patients`)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/` | admin, receptionist, doctor | Create patient |
-| GET | `/` | Any logged-in | List / search |
-| GET | `/:id` | Any logged-in | Get one |
-| PUT | `/:id` | admin, receptionist, doctor | Update |
-| DELETE | `/:id` | admin | Soft delete |
+| Method | Endpoint | Auth                        | Description    |
+| ------ | -------- | --------------------------- | -------------- |
+| POST   | `/`      | admin, receptionist, doctor | Create patient |
+| GET    | `/`      | Any logged-in               | List / search  |
+| GET    | `/:id`   | Any logged-in               | Get one        |
+| PUT    | `/:id`   | admin, receptionist, doctor | Update         |
+| DELETE | `/:id`   | admin                       | Soft delete    |
 
 ### Doctors (`/api/doctors`)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/` | admin | Create doctor/staff |
-| GET | `/` | Any logged-in | List / filter |
-| GET | `/:id` | Any logged-in | Get one |
-| PUT | `/:id` | admin | Update |
-| PUT | `/:id/availability` | admin, doctor | Update schedule |
-| DELETE | `/:id` | admin | Soft delete |
+| Method | Endpoint            | Auth          | Description         |
+| ------ | ------------------- | ------------- | ------------------- |
+| POST   | `/`                 | admin         | Create doctor/staff |
+| GET    | `/`                 | Any logged-in | List / filter       |
+| GET    | `/:id`              | Any logged-in | Get one             |
+| PUT    | `/:id`              | admin         | Update              |
+| PUT    | `/:id/availability` | admin, doctor | Update schedule     |
+| DELETE | `/:id`              | admin         | Soft delete         |
 
 ### Appointments (`/api/appointments`)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/` | Any logged-in | Book (rejects overlapping slots) |
-| GET | `/` | Any logged-in | List / filter |
-| GET | `/:id` | Any logged-in | Get one |
-| PUT | `/:id/reschedule` | Any logged-in | Reschedule |
-| PUT | `/:id/cancel` | Any logged-in | Cancel |
-| PUT | `/:id/status` | admin, doctor, receptionist | Mark completed/no_show |
+| Method | Endpoint          | Auth                        | Description                      |
+| ------ | ----------------- | --------------------------- | -------------------------------- |
+| POST   | `/`               | Any logged-in               | Book (rejects overlapping slots) |
+| GET    | `/`               | Any logged-in               | List / filter                    |
+| GET    | `/:id`            | Any logged-in               | Get one                          |
+| PUT    | `/:id/reschedule` | Any logged-in               | Reschedule                       |
+| PUT    | `/:id/cancel`     | Any logged-in               | Cancel                           |
+| PUT    | `/:id/status`     | admin, doctor, receptionist | Mark completed/no_show           |
 
 ### EMR (`/api/emr`)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/` | admin, doctor | Create visit record |
-| GET | `/` | Any logged-in | List / filter |
-| GET | `/patient/:patientId` | Any logged-in | Patient history |
-| GET | `/:id` | Any logged-in | Get one |
-| PUT | `/:id` | admin, doctor | Update |
-| POST | `/:id/prescriptions` | admin, doctor | Add prescription |
-| POST | `/:id/lab-orders` | admin, doctor | Add lab order |
+| Method | Endpoint              | Auth          | Description         |
+| ------ | --------------------- | ------------- | ------------------- |
+| POST   | `/`                   | admin, doctor | Create visit record |
+| GET    | `/`                   | Any logged-in | List / filter       |
+| GET    | `/patient/:patientId` | Any logged-in | Patient history     |
+| GET    | `/:id`                | Any logged-in | Get one             |
+| PUT    | `/:id`                | admin, doctor | Update              |
+| POST   | `/:id/prescriptions`  | admin, doctor | Add prescription    |
+| POST   | `/:id/lab-orders`     | admin, doctor | Add lab order       |
 
 ### Lab (`/api/lab`)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/tests` | admin | Add test to catalog |
-| GET | `/tests` | Any logged-in | List catalog |
-| PUT | `/tests/:id` | admin | Update test |
-| POST | `/orders` | admin, doctor | Create lab order |
-| GET | `/orders` | Any logged-in | List orders |
-| GET | `/orders/:id` | Any logged-in | Get one |
-| PUT | `/orders/:id/collect` | admin, lab_technician | Mark sample collected |
-| PUT | `/orders/:id/result` | admin, lab_technician | Enter result |
-| PUT | `/orders/:id/cancel` | admin, doctor, lab_technician | Cancel order |
+| Method | Endpoint              | Auth                          | Description           |
+| ------ | --------------------- | ----------------------------- | --------------------- |
+| POST   | `/tests`              | admin                         | Add test to catalog   |
+| GET    | `/tests`              | Any logged-in                 | List catalog          |
+| PUT    | `/tests/:id`          | admin                         | Update test           |
+| POST   | `/orders`             | admin, doctor                 | Create lab order      |
+| GET    | `/orders`             | Any logged-in                 | List orders           |
+| GET    | `/orders/:id`         | Any logged-in                 | Get one               |
+| PUT    | `/orders/:id/collect` | admin, lab_technician         | Mark sample collected |
+| PUT    | `/orders/:id/result`  | admin, lab_technician         | Enter result          |
+| PUT    | `/orders/:id/cancel`  | admin, doctor, lab_technician | Cancel order          |
 
 ### Pharmacy (`/api/pharmacy`)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/drugs` | admin, pharmacist | Add drug |
-| GET | `/drugs` | Any logged-in | List / search |
-| GET | `/drugs/low-stock` | admin, pharmacist | Low-stock drugs |
-| GET | `/drugs/:id` | Any logged-in | Get one |
-| PUT | `/drugs/:id` | admin, pharmacist | Update |
-| PUT | `/drugs/:id/add-stock` | admin, pharmacist | Restock |
-| POST | `/dispense` | admin, pharmacist | Dispense drugs |
-| GET | `/dispense` | Any logged-in | List dispenses |
+| Method | Endpoint               | Auth              | Description     |
+| ------ | ---------------------- | ----------------- | --------------- |
+| POST   | `/drugs`               | admin, pharmacist | Add drug        |
+| GET    | `/drugs`               | Any logged-in     | List / search   |
+| GET    | `/drugs/low-stock`     | admin, pharmacist | Low-stock drugs |
+| GET    | `/drugs/:id`           | Any logged-in     | Get one         |
+| PUT    | `/drugs/:id`           | admin, pharmacist | Update          |
+| PUT    | `/drugs/:id/add-stock` | admin, pharmacist | Restock         |
+| POST   | `/dispense`            | admin, pharmacist | Dispense drugs  |
+| GET    | `/dispense`            | Any logged-in     | List dispenses  |
 
 ### Billing (`/api/billing`)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/` | admin, receptionist | Create invoice |
-| GET | `/` | Any logged-in | List / filter by patient or status |
-| GET | `/:id` | Any logged-in | Get one |
-| POST | `/:id/payments` | admin, receptionist | Record a payment |
-| PUT | `/:id/cancel` | admin, receptionist | Cancel invoice |
+| Method | Endpoint        | Auth                | Description                        |
+| ------ | --------------- | ------------------- | ---------------------------------- |
+| POST   | `/`             | admin, receptionist | Create invoice                     |
+| GET    | `/`             | Any logged-in       | List / filter by patient or status |
+| GET    | `/:id`          | Any logged-in       | Get one                            |
+| POST   | `/:id/payments` | admin, receptionist | Record a payment                   |
+| PUT    | `/:id/cancel`   | admin, receptionist | Cancel invoice                     |
 
 ### Notifications (`/api/notifications`)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/` | admin, doctor, receptionist, lab_technician | Send a notification (email/SMS) |
-| GET | `/` | Any logged-in | List / filter by recipient, type, status |
-| GET | `/:id` | Any logged-in | Get one |
-| PUT | `/:id/read` | Any logged-in | Mark as read |
-| PUT | `/:id/retry` | admin, receptionist | Retry a failed notification |
+| Method | Endpoint     | Auth                                        | Description                              |
+| ------ | ------------ | ------------------------------------------- | ---------------------------------------- |
+| POST   | `/`          | admin, doctor, receptionist, lab_technician | Send a notification (email/SMS)          |
+| GET    | `/`          | Any logged-in                               | List / filter by recipient, type, status |
+| GET    | `/:id`       | Any logged-in                               | Get one                                  |
+| PUT    | `/:id/read`  | Any logged-in                               | Mark as read                             |
+| PUT    | `/:id/retry` | admin, receptionist                         | Retry a failed notification              |
 
 > The notification service simulates sending by logging to the console. Swap in a real email/SMS provider (nodemailer, SendGrid, Twilio) in `src/utils/sender.js`.
 
@@ -302,6 +303,15 @@ service/
 ├── .env.example
 └── package.json
 ```
+
+## Troubleshooting
+
+Common issues when running the stack locally:
+
+- **`401 Unauthorized` from a service** — make sure `JWT_SECRET` is identical across the gateway and every service. Mismatched secrets cause token verification to fail.
+- **`ECONNREFUSED` on startup** — MongoDB isn't running, or the `MONGO_URI` in the service's `.env` points to the wrong host/port. Start MongoDB and re-check each service's `.env`.
+- **Gateway returns `502`/`504`** — the downstream service for that route isn't up. Start each service on its documented port (see the [Services](#services) table).
+- **`EADDRINUSE` (port already in use)** — another process is bound to the service port. Stop it, or change the port in the service's `.env`.
 
 ## Contributing
 
