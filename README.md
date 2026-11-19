@@ -1,5 +1,11 @@
 # HMS Medico
 
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=flat-square) 
+![GitHub stars](https://img.shields.io/github/stars/vikasthakurr/HMS-Medico?style=flat-square) 
+![GitHub forks](https://img.shields.io/github/forks/vikasthakurr/HMS-Medico?style=flat-square)
+
+
 A Hospital Management System backend built with a microservices architecture using Node.js, Express, and MongoDB.
 
 Each domain (auth, patients, doctors, appointments, medical records, lab, pharmacy) is its own independent service with its own database. An API Gateway sits in front of all of them as a single entry point and handles authentication.
